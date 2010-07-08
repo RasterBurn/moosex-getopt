@@ -48,6 +48,17 @@ sub new_with_options {
         }
     }
 
+    my $traits;
+
+    if($class->meta->does_role('MooseX::Traits') && $MooseX::Traits::VERSION >= 0.09) {
+        # 0.09 is required for "with_traits" method
+        my $opt_parser = Getopt::Long::Parser->new( config => [ qw( no_auto_help pass_through ) ] );
+        $opt_parser->getoptions( "traits=s@" => \$traits);
+
+        $traits = $config_from_file->{traits} unless defined $traits;
+        $class = $class->with_traits(@$traits) if $traits;
+    }
+
     my $constructor_params = ( @params == 1 ? $params[0] : {@params} );
 
     Carp::croak("Single parameters to new_with_options() must be a HASH ref")
