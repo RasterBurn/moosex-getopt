@@ -10,58 +10,16 @@ use Carp ();
 
 use Getopt::Long 2.37 ();
 
+with 'MooseX::Getopt::WithConfigFile';
+
 has ARGV       => (is => 'rw', isa => 'ArrayRef', metaclass => "NoGetopt");
 has extra_argv => (is => 'rw', isa => 'ArrayRef', metaclass => "NoGetopt");
 
 sub new_with_options {
     my ($class, @params) = @_;
 
-    my $config_from_file;
-    if($class->meta->does_role('MooseX::ConfigFromFile')) {
-        local @ARGV = @ARGV;
-
-        # just get the configfile arg now; the rest of the args will be
-        # fetched later
-        my $configfile;
-        my $opt_parser = Getopt::Long::Parser->new( config => [ qw( no_auto_help pass_through ) ] );
-        $opt_parser->getoptions( "configfile=s" => \$configfile );
-
-        if(!defined $configfile) {
-            my $cfmeta = $class->meta->find_attribute_by_name('configfile');
-            $configfile = $cfmeta->default if $cfmeta->has_default;
-            if (ref $configfile eq 'CODE') {
-                # not sure theres a lot you can do with the class and may break some assumptions
-                # warn?
-                $configfile = &$configfile($class);
-            }
-            if (defined $configfile) {
-                $config_from_file = eval {
-                    $class->get_config_from_file($configfile);
-                };
-                if ($@) {
-                    die $@ unless $@ =~ /Specified configfile '\Q$configfile\E' does not exist/;
-                }
-            }
-        }
-        else {
-            $config_from_file = $class->get_config_from_file($configfile);
-        }
-    }
-
-    my $traits;
-
-    # For classes that do "MooseX::Traits", provide a --traits parameter and compose
-    # those roles before the rest of the args are processed.
-
-    if($class->meta->does_role('MooseX::Traits') && $MooseX::Traits::VERSION >= 0.09) {
-        # 0.09 is required for "with_traits" method
-        my $opt_parser = Getopt::Long::Parser->new( config => [ qw( no_auto_help pass_through ) ] );
-        $opt_parser->getoptions( "traits=s@" => \$traits);
-
-        # If no traits are given on the command line, then use traits from the config file.
-        $traits = $config_from_file->{traits} unless defined $traits;
-        $class = $class->with_traits(@$traits) if $traits;
-    }
+    $class = $class->_apply_traits;
+    my $config_from_file = $class->_mx_getopt_config_from_file;
 
     my $constructor_params = ( @params == 1 ? $params[0] : {@params} );
 
@@ -91,6 +49,23 @@ sub new_with_options {
         %$params, # params from CLI
     );
 }
+
+sub _mx_getopt_config_from_file {
+    my $class = shift;
+    return {};
+}
+
+sub _mx_getopt_traits {
+    my $class = shift;
+    return @_;
+}
+
+
+sub _apply_traits {
+    my $class = shift;
+    return $class;
+}
+
 
 sub _getopt_spec { shift->_traditional_spec(@_); }
 
@@ -200,7 +175,7 @@ sub _get_cmd_flags_for_attr {
 
 sub _attrs_to_options {
     my $class = shift;
-    my $config_from_file = shift || {};
+    my $config_from_file = $class->_mx_getopt_config_from_file;
 
     my @options;
 

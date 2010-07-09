@@ -5,6 +5,7 @@ use warnings;
 
 use Test::Moose;
 use Test::More;
+use Test::Exception;
 
 if ( !eval { require MooseX::Traits } )
 {
@@ -15,7 +16,7 @@ elsif ( $MooseX::Traits::VERSION < 0.09 ) {
 }
 else
 {
-    plan tests => 8;
+    plan tests => 9;
 }
 
 {
@@ -42,10 +43,14 @@ else
     package App;
 
     use Moose;
-    with 'MooseX::Getopt';
-    with 'MooseX::Traits';
+    with 'MooseX::Getopt::WithTraits';
 }
 
+{
+  local @ARGV = qw( );
+
+  lives_ok { App->new_with_options } '... no traits provided';
+}
 
 {
   local @ARGV = qw( --traits My::Role::A );
@@ -68,7 +73,7 @@ SKIP: {
   {
       package App::WithConfig;
       use Moose;
-      with 'MooseX::Traits', 'MooseX::ConfigFromFile', 'MooseX::Getopt';
+      with 'MooseX::ConfigFromFile', 'MooseX::Getopt::WithTraits';
 
       sub get_config_from_file {
           my ( $class, $file ) = @_;
