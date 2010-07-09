@@ -50,11 +50,15 @@ sub new_with_options {
 
     my $traits;
 
+    # For classes that do "MooseX::Traits", provide a --traits parameter and compose
+    # those roles before the rest of the args are processed.
+
     if($class->meta->does_role('MooseX::Traits') && $MooseX::Traits::VERSION >= 0.09) {
         # 0.09 is required for "with_traits" method
         my $opt_parser = Getopt::Long::Parser->new( config => [ qw( no_auto_help pass_through ) ] );
         $opt_parser->getoptions( "traits=s@" => \$traits);
 
+        # If no traits are given on the command line, then use traits from the config file.
         $traits = $config_from_file->{traits} unless defined $traits;
         $class = $class->with_traits(@$traits) if $traits;
     }

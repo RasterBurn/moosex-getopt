@@ -76,6 +76,11 @@ Options specified in multiple places follow the following
 precendence order: commandline overrides configfile, which
 overrides explicit new_with_options parameters.
 
+If your class also uses L<MooseX::Traits> it will apply the roles
+specified by the C<--traits> option before the rest of the options are
+processed.  Attributes provided by those roles will be treated as
+commandline options just as those in the base class.
+
 =head2 Supported Type Constraints
 
 =over 4
