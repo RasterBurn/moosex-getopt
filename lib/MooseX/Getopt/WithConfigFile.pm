@@ -62,27 +62,6 @@ around _mx_getopt_config_from_file => sub {
     return $config_from_file;
 };
 
-#
-# Add "traits" from config file to our object.
-# This must be called before the _mx_getopt_traits in
-# MooseX::Getopt::WithTraits or else the overriding doesn't work!
-#
-around _mx_getopt_traits => sub {
-    my $next   = shift;
-    my $class  = shift;
-    my @traits = @_;
-
-    my $config_from_file = $class->_mx_getopt_config_from_file;
-    my $traits_from_config_file = $config_from_file->{traits};
-
-    if (defined $traits_from_config_file) {
-      Carp::croak("traits parameter in config file must be an ARRAY ref") unless ref($traits_from_config_file) eq 'ARRAY';
-      @traits = @$traits_from_config_file;
-    }
-
-    return $class->$next(@traits);
-};
-
 no Moose::Role;
 
 1;

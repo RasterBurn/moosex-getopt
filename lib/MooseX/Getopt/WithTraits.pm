@@ -12,12 +12,21 @@ use Getopt::Long;
 
 with 'MooseX::Traits', 'MooseX::Getopt';
 
-around _mx_getopt_traits => sub {
-    my $next   = shift;
+sub _mx_getopt_traits {
     my $class  = shift;
 
-    # get configfile (and other) traits first
-    my @traits = $class->$next(@_);
+    my @traits;
+
+    # get configfile traits first
+    if ($class->does('MooseX::Getopt::WithConfigFile')) {
+        my $config_from_file = $class->_mx_getopt_config_from_file;
+        my $traits_from_config_file = $config_from_file->{traits};
+
+        if (defined $traits_from_config_file) {
+          Carp::croak("traits parameter in config file must be an ARRAY ref") unless ref($traits_from_config_file) eq 'ARRAY';
+          @traits = @$traits_from_config_file;
+        }
+    }
 
     # now override them with the command line
 
@@ -29,7 +38,7 @@ around _mx_getopt_traits => sub {
     @traits = @$cmdline_traits if defined $cmdline_traits;
 
     return @traits;
-};
+}
 
 around 'new_with_options' => sub {
     my $next = shift;

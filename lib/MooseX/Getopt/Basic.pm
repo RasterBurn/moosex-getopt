@@ -54,11 +54,6 @@ sub _mx_getopt_config_from_file {
     return {};
 }
 
-sub _mx_getopt_traits {
-    my $class = shift;
-    return @_;
-}
-
 sub _getopt_spec { shift->_traditional_spec(@_); }
 
 sub _parse_argv {
