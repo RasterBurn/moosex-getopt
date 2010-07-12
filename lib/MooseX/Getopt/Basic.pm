@@ -18,7 +18,6 @@ has extra_argv => (is => 'rw', isa => 'ArrayRef', metaclass => "NoGetopt");
 sub new_with_options {
     my ($class, @params) = @_;
 
-    $class = $class->_apply_traits;
     my $config_from_file = $class->_mx_getopt_config_from_file;
 
     my $constructor_params = ( @params == 1 ? $params[0] : {@params} );
@@ -59,13 +58,6 @@ sub _mx_getopt_traits {
     my $class = shift;
     return @_;
 }
-
-
-sub _apply_traits {
-    my $class = shift;
-    return $class;
-}
-
 
 sub _getopt_spec { shift->_traditional_spec(@_); }
 

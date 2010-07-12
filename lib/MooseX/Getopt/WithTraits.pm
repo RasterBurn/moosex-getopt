@@ -31,17 +31,15 @@ around _mx_getopt_traits => sub {
     return @traits;
 };
 
-around '_apply_traits' => sub {
+around 'new_with_options' => sub {
     my $next = shift;
     my $class = shift;
-
-    $class = $class->$next();
+    my @args = @_;
 
     my @traits = $class->_mx_getopt_traits;
 
     $class = $class->with_traits(@traits) if scalar @traits;
-
-    return $class;
+    return $class->$next(@_);
 };
 
 no Moose::Role;
