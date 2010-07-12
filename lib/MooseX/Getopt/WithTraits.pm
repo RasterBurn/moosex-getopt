@@ -20,7 +20,7 @@ sub _mx_getopt_traits {
     # get configfile traits first
     if ($class->does('MooseX::Getopt::WithConfigFile')) {
         my $config_from_file = $class->_mx_getopt_config_from_file;
-        my $traits_from_config_file = $config_from_file->{traits};
+        my $traits_from_config_file = delete $config_from_file->{traits};
 
         if (defined $traits_from_config_file) {
           Carp::croak("traits parameter in config file must be an ARRAY ref") unless ref($traits_from_config_file) eq 'ARRAY';
