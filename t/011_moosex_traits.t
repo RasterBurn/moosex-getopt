@@ -43,7 +43,7 @@ else
     package App;
 
     use Moose;
-    with 'MooseX::Getopt::WithTraits';
+    with 'MooseX::Getopt', 'MooseX::Getopt::WithTraits';
 }
 
 {
@@ -73,7 +73,7 @@ SKIP: {
   {
       package App::WithConfig;
       use Moose;
-      with 'MooseX::ConfigFromFile', 'MooseX::Getopt::WithTraits';
+      with 'MooseX::ConfigFromFile', 'MooseX::Getopt', 'MooseX::Getopt::WithTraits';
 
       sub get_config_from_file {
           my ( $class, $file ) = @_;

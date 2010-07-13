@@ -10,7 +10,8 @@ use MooseX::Getopt::Meta::Attribute;
 use MooseX::Getopt::Meta::Attribute::NoGetopt;
 use Getopt::Long;
 
-with 'MooseX::Traits', 'MooseX::Getopt';
+with 'MooseX::Traits';
+requires 'new_with_options';
 
 sub _mx_getopt_traits {
     my $class  = shift;
@@ -61,7 +62,7 @@ no Moose::Role;
   package My::App;
   use Moose;
 
-  with 'MooseX::Traits', 'MooseX::Getopt::WithTraits';
+  with 'MooseX::Traits', 'MooseX::Getopt', 'MooseX::Getopt::WithTraits';
 
   has 'out' => (is => 'rw', isa => 'Str', required => 1);
   has 'in'  => (is => 'rw', isa => 'Str', required => 1);
